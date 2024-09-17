@@ -10,7 +10,9 @@ import { ToastContainer, toast } from 'react-toastify';
 const Register = () => {
 const navigate = useNavigate()
 
+
 // show notification after successfull registration
+const notify = () => toast("Account Created Successfully");
 
     const [form, setForm] = useState({
         FullName: '',
@@ -65,7 +67,7 @@ const navigate = useNavigate()
 
 
           if(data){
-            
+            notify();
             navigate("/");
           }
 
@@ -152,7 +154,7 @@ const [show, setShow] = useState(false);
                   onChange={handleChange}
                   >
                     <option value="" disabled>Select Division</option>
-                    <option value="AreaP">Area P</option>
+                    {/* <option value="AreaP">Area P</option> */}
                     <option value="Alagbado">Alagbado</option>
                     <option value="Ayobo">Ayobo</option>
                     <option value="Ipaja">Ipaja</option>

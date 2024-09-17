@@ -5,8 +5,19 @@ import Header from '../Component/Header'
 import Logo from '../assets/Nigeria_Police_logo.jpg'
 import { useNavigate } from 'react-router-dom'
 import supabase from '../Config/SupabaseClient'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Spinner from 'react-bootstrap/Spinner';
 
 const Login = () => {
+
+  const notify = () => toast("Success!");
+    // show spinner
+    const [ShowSpinner, setShowSpinner] = useState(false);
+    const handleSpinner = ()=>{
+      setTimeout(setShowSpinner(true), 5000)
+    }
+
 
   const navigate = useNavigate();
 
@@ -34,6 +45,7 @@ const Login = () => {
         }
 
         else{
+          handleSpinner();
           const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
@@ -44,14 +56,17 @@ const Login = () => {
 
               if (role === 'admin') {
                 navigate('/admin-dashboard');
+                notify();
               } else if (role === 'user') {
+                
                 navigate('/dashboard');
               } else {
+                setShowSpinner(false);
                 console.log('Role not found');
+                alert('email or password not correct');
               }
               
             } else {
-              // navigate('/dashboard');
               setShowError(true)
           }
       
@@ -86,9 +101,9 @@ const Login = () => {
     <div className="card p-2 border-0 mx-auto mt-5" style={{width: '400px'}}>
         <div className="card-header text-center bg-white p-1">
           <img src={Logo} width={80} alt="" />
-        <h1 className='text-center'>Login</h1>
+        {/* <h2 className='text-center'>Login</h2> */}
+        
 
-          
         </div>
   
         <div className="card-body">
@@ -116,13 +131,16 @@ const Login = () => {
                   />
                 </div>
                 <div className="form-group mt-4 d-grid">
-                  <button className='btn btn-primary' >Login</button>
+                  <button className='btn btn-primary' >
+                  {ShowSpinner ? <Spinner animation="border" size="sm"/> : <h5 className='text-center'> Login</h5>}     
+                    </button>
                 </div>
               </form>
         </div>
     </div>
 
     </section>
+    <ToastContainer />
     </>
   )
 }
