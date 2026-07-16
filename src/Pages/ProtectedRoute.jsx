@@ -19,7 +19,7 @@ function ProtectedRoute({ children }) {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // You can replace this with a proper loading spinner or message.
+    return <div>Loading...</div>; 
   }
 
   return isAuthenticated ? children : <Navigate to="/login" />;

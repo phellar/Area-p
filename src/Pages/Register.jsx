@@ -1,195 +1,208 @@
-import React, { useState } from 'react'
-import Header from '../Component/Header'
-import supabase from '../Config/SupabaseClient'
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
-import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useState } from "react";
+import Header from "../Component/Header";
+import supabase from "../Config/SupabaseClient";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
-const navigate = useNavigate()
+  const navigate = useNavigate();
 
+  const notify = () => toast.success("Account Created Successfully");
 
-// show notification after successfull registration
-const notify = () => toast("Account Created Successfully");
+  const [showSpinner, setShowSpinner] = useState(false);
 
-    const [form, setForm] = useState({
-        FullName: '',
-        password: '',
-        division: '',
-        email: '',
-    })
+  const [show, setShow] = useState(false);
 
-    const [formError, setFormError] = useState(false)
-
-    const handleChange = (e)=>{
-        setForm({... form, [e.target.name]: e.target.value});
-    }
-
-    // register use 
-    const handleSubmit = async(e) =>{
-      e.preventDefault()
-      
-      const {FullName,password, division,email}= form
-
-      if(!FullName || !password || !division || !email){
-        handleShow();
-      }
-
-      else{
-        try {
-
-          handleSpinner();
-          const { data, error } = await supabase.auth.signUp(
-            {
-              email,
-              password,
-              options: {
-                data: {
-                  full_name: form.FullName,
-                  division: form.division,
-                  role: 'user' 
-                }
-              }
-             
-            }
-          )
-          
-          setForm({
-            FullName: '',
-            password: '',
-            division: '',
-            email: '',
-          })
-
-          
-
-
-          if(data){
-            notify();
-            navigate("/");
-          }
-
-          
-        } catch (error) {
-            console.log(error);
-        } finally{
-          setShowSpinner(false)
-        }
-          
-
-      }
-    }
-
-
-// show modal for error
-const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
+
   const handleShow = () => setShow(true);
 
-  // show spinner
-  const [ShowSpinner, setShowSpinner] = useState(false);
-  const handleSpinner = ()=>{
-    setTimeout(setShowSpinner(true), 5000)
+  const [form, setForm] = useState({
+    FullName: "",
+    email: "",
+    password: "",
+    division: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // =============================
+  // REGISTER USER
+  // =============================
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const { FullName, password, division, email } = form;
+
+  if (!FullName || !password || !division || !email) {
+    handleShow();
+    return;
   }
 
+  setShowSpinner(true);
 
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: FullName,
+          division: division,
+        },
+      },
+    });
 
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
+    notify();
+
+    setForm({
+      FullName: "",
+      password: "",
+      division: "",
+      email: "",
+    });
+
+    setTimeout(() => {
+      navigate("/");
+    }, 1500);
+
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong.");
+  } finally {
+    setShowSpinner(false);
+  }
+};
 
   return (
     <>
-    <Header/>
-    <section className="bg-light" style={{width: '100vw', height: '100vh', overflowX: 'hidden'}}>
-        {/* <h2 className="text-center text-darkt mt-4">SPO's Transfer Record Portal</h2> */}
-    <div className="card border-0 mx-auto mt-5  p-3" style={{width: '450px'}}>
-        <div className="card-header text-center bg-white ">
+      <Header />
+
+      <section
+        className="bg-light"
+        style={{
+          width: "100vw",
+          minHeight: "100vh",
+          overflowX: "hidden",
+        }}
+      >
+        <div
+          className="card border-0 mx-auto mt-5 p-3 shadow"
+          style={{ width: "450px" }}
+        >
+          <div className="card-header bg-white text-center border-0">
             <h3>Create an Account</h3>
-            <p className="lead">Strictly for Admin Officers/Inspr.Admin</p>
-            {/* <p className="lead">sign in below</p> */}
-        </div>
-        <div className="card-body p-4">
-          <div className=""></div>
+            <p className="lead">
+              Strictly for Admin Officers / Inspector Admin
+            </p>
+          </div>
 
-        
-
-                <div className="form-group mb-3">
-                  {/* <label htmlFor="email" className='form-label'>Admin Officer</label> */}
-                  <input type="text" className='form-control' 
-                  placeholder='Full Name'
-                  name='FullName'
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Full Name"
+                  name="FullName"
                   value={form.FullName}
                   onChange={handleChange}
                 />
-                </div>
+              </div>
 
-                <div className="form-group mb-3">
-                  {/* <label htmlFor="email" className='form-label'>Email</label> */}
-                  <input type="email" className='form-control ' 
-                  placeholder='Email Address' 
-                  name='email'
+              <div className="mb-3">
+                <input
+                  type="email"
+                  className="form-control"
+                  placeholder="Email Address"
+                  name="email"
                   value={form.email}
                   onChange={handleChange}
-                  />
-                </div>
+                />
+              </div>
 
-                <div className="form-group  mb-3">
-                  {/* <label htmlFor="passowrd" className='form-label'>Password</label> */}
-                  <input type="password" 
-                  className='form-control' 
-                  placeholder='Password'
-                  name='password'
+              <div className="mb-3">
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Password"
+                  name="password"
                   value={form.password}
                   onChange={handleChange}
-                   />
-                </div>
+                />
+              </div>
 
-                <div className="form-group  mb-3">
-                {/* <label htmlFor="password" className='form-label'>Division</label> */}
-                  <select class="form-select" 
-                  aria-label=""
-                  name='division'
+              <div className="mb-4">
+                <select
+                  className="form-select"
+                  name="division"
                   value={form.division}
                   onChange={handleChange}
-                  >
-                    <option value="" disabled>Select Division</option>
-                    {/* <option value="AreaP">Area P</option> */}
-                    <option value="Alagbado">Alagbado</option>
-                    <option value="Ayobo">Ayobo</option>
-                    <option value="Ipaja">Ipaja</option>
-                    <option value="Oke-odo">Oke Odo</option>
-                    <option value="Meiran">Meiran</option>
-                    </select>
-                </div>
-                <div className="form-group mt-4 d-grid">
-                    <button className='btn btn-primary' onClick={handleSubmit}>
-                      {ShowSpinner ? <Spinner animation="border" size="sm"/> : <h5 className='text-center'>Submit</h5>}
-                    </button>
-                </div>
+                >
+                  <option value="">Select Division</option>
+
+                  <option value="Alagbado">Alagbado Division</option>
+
+                  <option value="Ayobo">Ayobo Division</option>
+
+                  <option value="Ipaja">Ipaja Division</option>
+
+                  <option value="Oke-Odo">Oke Odo Division</option>
+
+                  <option value="Meiran">Meiran Division</option>
+                </select>
+              </div>
+
+              <div className="d-grid">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={showSpinner}
+                >
+                  {showSpinner ? (
+                    <Spinner animation="border" size="sm" />
+                  ) : (
+                    "Create Account"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-    </div>
-    <ToastContainer />
-    </section>
 
+        <ToastContainer />
+      </section>
 
-{/* modal and spinner utility */}
-        <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Ops!!!</Modal.Title>
+          <Modal.Title>Incomplete Form</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Kindly Fill all the field</Modal.Body>
+
+        <Modal.Body>Kindly fill in all required fields.</Modal.Body>
+
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
         </Modal.Footer>
       </Modal>
-
-
-
     </>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
